@@ -113,7 +113,7 @@ void process_serial_data(uint8_t ch)
 		count++;
 	}
 	if((ch == 'e') && count == 1){
-			count++;
+		count++;
 	}
 	if((ch == 'd') && count == 2){
 		count++;
@@ -136,6 +136,13 @@ void process_serial_data(uint8_t ch)
 		count=0;
 		ledStatus = 0;
 		LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_3);
+		return;
+	}
+	if(((ch == '/n')||(ch == ' ')) && count >= 1){
+			return;
+		}
+	else{
+		count=0;
 		return;
 	}
 }
