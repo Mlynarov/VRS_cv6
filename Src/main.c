@@ -22,17 +22,25 @@
 #include "main.h"
 #include "usart.h"
 #include "gpio.h"
+#include <stdbool.h>
+#include "string.h"
 
 
 void SystemClock_Config(void);
 
 void process_serial_data(uint8_t ch);
 
+// definicia globalnych premennych
+bool ledStatus = 0;
+char recievedString[6];
+
+
 int main(void)
 {
-
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
+  char ledON[6] = {'L', 'e', 'd', 'O', 'N', ' '};
+  char ledOFF[7] = {'L', 'e', 'd', 'O', 'F', 'F', ' '};
 
   NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
 
@@ -43,14 +51,21 @@ int main(void)
 
   USART2_RegisterCallback(process_serial_data);
 
-  char tx_data = 'a';
-
   while (1)
   {
-	  LL_USART_TransmitData8(USART2, tx_data++);
-	  tx_data == ('z' + 1) ? tx_data = 'a' : tx_data;
-
-	  LL_mDelay(50);
+	  if (ledStatus == 1){
+		  for(int i=0; i<strlen(ledON); i++){
+		  		  LL_USART_TransmitData8(USART2, ledON[i]);
+		  		  LL_mDelay(70);
+		  	  }
+	  }
+	  else if(ledStatus == 0){
+		  for(int i=0; i<strlen(ledOFF); i++){
+				  LL_USART_TransmitData8(USART2, ledOFF[i]);
+				  LL_mDelay(70);
+			  }
+	  }
+	  LL_mDelay(5000);
   }
 }
 
@@ -94,56 +109,35 @@ void process_serial_data(uint8_t ch)
 {
 	static uint8_t count = 0;
 
-	if(ch == 'l')
-	{
+	if((ch == 'l') && count == 0){
 		count++;
 	}
-
-	else if((ch == 'e')&& count ==1)
-		{
+	if((ch == 'e') && count == 1){
 			count++;
-		}
-	else if((ch == 'd')&& count ==2)
-			{
-				count++;
-			}
-	else if((ch == 'O')&& count ==3)
-			{
-			count++;
-			}
-	else if((ch == 'N')&& count ==4)
-			{
-				// LED on
-				count=0;
-			}
-	else if((ch == 'F')&& (count ==4) )
-				{
-		         count++;
-				}
-	else if((ch == 'F')&& (count ==5) )
-					{
-			// LED OFF
-						count=0;
-					}
-	else {
-		count =0;
 	}
-
-
-	if(count >= 3)
-			{
-				if((LL_GPIO_ReadInputPort(GPIOB) & (1 << 3)) >> 3)
-				{
-					LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_3);
-				}
-				else
-				{
-					LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_3);
-				}
-
-				count = 0;
-				return;
-			}
+	if((ch == 'd') && count == 2){
+		count++;
+	}
+	if((ch == 'O') && count == 3){
+		count++;
+	}
+	if((ch == 'N') && count == 4){
+		// LED on
+		count=0;
+		ledStatus = 1;
+		LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_3);
+		return;
+	}
+	if((ch == 'F') && (count ==4) ){
+	 count++;
+	}
+	if((ch == 'F') && (count ==5) ){
+	// LED OFF
+		count=0;
+		ledStatus = 0;
+		LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_3);
+		return;
+	}
 }
 
 
