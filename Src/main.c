@@ -39,8 +39,8 @@ int main(void)
 {
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
-  char ledON[6] = {'L', 'e', 'd', 'O', 'N', ' '};
-  char ledOFF[7] = {'L', 'e', 'd', 'O', 'F', 'F', ' '};
+  char ledON[6] = {'L', 'e', 'd', 'O', 'N', '\n'};
+  char ledOFF[7] = {'L', 'e', 'd', 'O', 'F', 'F','\n'};
 
   NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
 
@@ -65,6 +65,7 @@ int main(void)
 				  LL_mDelay(70);
 			  }
 	  }
+	  LL_USART_TransmitData8(USART2, '\r');
 	  LL_mDelay(5000);
   }
 }
