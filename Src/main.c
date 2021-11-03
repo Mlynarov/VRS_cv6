@@ -38,8 +38,8 @@ int main(void)
 
   SystemClock_Config();
 
-  MX_GPIO_Init();
-  MX_USART2_UART_Init();
+  MX_GPIO_Init(); // inicializacia gpio pinov
+  MX_USART2_UART_Init();// inicializacia UART
 
   USART2_RegisterCallback(process_serial_data);
 
@@ -94,25 +94,56 @@ void process_serial_data(uint8_t ch)
 {
 	static uint8_t count = 0;
 
-	if(ch == 'a')
+	if(ch == 'l')
 	{
 		count++;
-
-		if(count >= 3)
-		{
-			if((LL_GPIO_ReadInputPort(GPIOB) & (1 << 3)) >> 3)
-			{
-				LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_3);
-			}
-			else
-			{
-				LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_3);
-			}
-
-			count = 0;
-			return;
-		}
 	}
+
+	else if((ch == 'e')&& count ==1)
+		{
+			count++;
+		}
+	else if((ch == 'd')&& count ==2)
+			{
+				count++;
+			}
+	else if((ch == 'O')&& count ==3)
+			{
+			count++;
+			}
+	else if((ch == 'N')&& count ==4)
+			{
+				// LED on
+				count=0;
+			}
+	else if((ch == 'F')&& (count ==4) )
+				{
+		         count++;
+				}
+	else if((ch == 'F')&& (count ==5) )
+					{
+			// LED OFF
+						count=0;
+					}
+	else {
+		count =0;
+	}
+
+
+	if(count >= 3)
+			{
+				if((LL_GPIO_ReadInputPort(GPIOB) & (1 << 3)) >> 3)
+				{
+					LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_3);
+				}
+				else
+				{
+					LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_3);
+				}
+
+				count = 0;
+				return;
+			}
 }
 
 
