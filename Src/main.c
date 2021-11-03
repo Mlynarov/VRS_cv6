@@ -32,7 +32,7 @@ void process_serial_data(uint8_t ch);
 
 // definicia globalnych premennych
 bool ledStatus = 0;
-char recievedString[6];
+static uint8_t count = 0;
 
 
 int main(void)
@@ -107,39 +107,36 @@ void SystemClock_Config(void)
 
 void process_serial_data(uint8_t ch)
 {
-	static uint8_t count = 0;
-
 	if((ch == 'l') && count == 0){
 		count++;
 	}
-	if((ch == 'e') && count == 1){
+	else if((ch == 'e') && count == 1){
 		count++;
 	}
-	if((ch == 'd') && count == 2){
+	else if((ch == 'd') && count == 2){
 		count++;
 	}
-	if((ch == 'O') && count == 3){
+	else if((ch == 'O') && count == 3){
 		count++;
 	}
-	if((ch == 'N') && count == 4){
+	else if((ch == 'N') && count == 4){
 		// LED on
 		count=0;
 		ledStatus = 1;
 		LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_3);
 		return;
 	}
-	if((ch == 'F') && (count ==4) ){
+	else if((ch == 'F') && (count ==4) ){
 	 count++;
 	}
-	if((ch == 'F') && (count ==5) ){
+	else if((ch == 'F') && (count ==5) ){
 	// LED OFF
 		count=0;
 		ledStatus = 0;
 		LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_3);
 		return;
 	}
-	if(((ch == '/n')||(ch == ' ')) && count >= 1){
-			return;
+	else if(((ch == '\n')||(ch == ' ')||(ch == '\r')) && count >= 1){
 		}
 	else{
 		count=0;
